@@ -4,23 +4,39 @@ const weatherData = {
     country : '',
     
     API_KEY : '9ed09a011f74d13c1ade1b8ad4c9b8b7',
-    async collectWeatherData (){
+     collectWeatherData (){
         // console.log(this.city, this.country);
-        try{
-            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`);
-            // console.log(res);
-            // console.log(await res.json());
-        const {name, main, weather} = await res.json();
+        // try{
+        //     const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`);
+        //     // console.log(res);
+        //     // console.log(await res.json());
+        // // const {name, main, weather} = await res.json();
 
-        return {
-            name,
-            main,
-            weather
-        }
-        // console.log(data);
-        }catch(err){
-            UIinit.showErrMessage(err);
-        }
+        // // return {
+        // //     name,
+        // //     main,
+        // //     weather
+        // // }
+        // // console.log(data);
+        // }catch(err){
+        //     console.log('Error in code');
+        // }
+
+        const res =  fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`)
+        .then(function(){
+            console.log('200 OK');
+          }).catch(function(){
+            console.log('404 Not Found');
+          })
+        
+        // if(res){
+        //     console.log('Data found');
+        // }else{
+        //     console.log('Not found');
+        // }
+
+        // fetch('https://httpstat.us/404')
+    
        
     }
     
@@ -113,7 +129,7 @@ const UIinit = {
         let data = await weatherData.collectWeatherData();
 
         // console.log(data);
-        return data;
+        // return data;
     },
     getIcon(icon){
         return `http://openweathermap.org/img/w/${icon}.png`
@@ -158,9 +174,10 @@ const UIinit = {
             this.valueValidation()
             this.resetValue();
             let data = await this.handleRemoteData();
-            this.showDataUI(data);
-            this.savatoStorage(cityValue, countryValue);
-            dataSetToStorage.saveItem();
+            // this.showDataUI(data);
+            // this.savatoStorage(cityValue, countryValue);
+            // dataSetToStorage.saveItem();
+            // this.showErrMessage('Error Message');
             
         })
         window.addEventListener('DOMContentLoaded', async () => {
@@ -174,7 +191,7 @@ const UIinit = {
             weatherData.country = country;
             const data = await this.handleRemoteData();
 
-            this.showDataUI(data);
+            // this.showDataUI(data);
             
         })
     },
