@@ -2,14 +2,16 @@
 const weatherData = {
     city : '',
     country : '',
+    
     API_KEY : '9ed09a011f74d13c1ade1b8ad4c9b8b7',
     async collectWeatherData (){
-        // console.log(this.city);
+        // console.log(this.city, this.country);
         try{
-            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.country},${this.city}&units=metric&appid=${this.API_KEY}`);
-        // const {name, main, weather} = await res.json();
-        console.log(await res.json())
-        console.log(name)
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${this.city},${this.country}&units=metric&appid=${this.API_KEY}`);
+            // console.log(res);
+            // console.log(await res.json());
+        const {name, main, weather} = await res.json();
+
         return {
             name,
             main,
@@ -17,7 +19,7 @@ const weatherData = {
         }
         // console.log(data);
         }catch(err){
-            UIinit.showErrMessage('Data not found')
+            UIinit.showErrMessage(err);
         }
        
     }
@@ -26,19 +28,21 @@ const weatherData = {
 
 // weatherData.collectWeatherData();
 
-const dataSetToStorage = {
+let dataSetToStorage = {
     city : '', 
     country : '',
     
     saveItem(){
+        // console.log(this.city, this.country);
         localStorage.setItem('Country', this.country),
         localStorage.setItem('City', this.city);
         
     },
     getItem(){
-        const country = localStorage.getItem('Country');
-        const city = localStorage.getItem('City');
+        let country = localStorage.getItem('Country');
+        let city = localStorage.getItem('City');
         // console.log(country, city);
+        // debugger
         return {country, city};
     }
 }
@@ -92,7 +96,7 @@ const UIinit = {
         let countryValue = countryElem.value;
         let cityValue = cityElem.value;
         const isValid = this.valueValidation(countryValue, cityValue);
-        debugger
+        // debugger
         // console.log(countryValue, cityValue);
         if(isValid) return
         return {
@@ -106,7 +110,8 @@ const UIinit = {
         cityElem.value = '';
     },
     async handleRemoteData(){
-        const data = await weatherData.collectWeatherData();
+        let data = await weatherData.collectWeatherData();
+
         // console.log(data);
         return data;
     },
@@ -114,6 +119,7 @@ const UIinit = {
         return `http://openweathermap.org/img/w/${icon}.png`
     },
     showDataUI(data){
+        // console.log(data)
         const {
             showCityElem,
             showHumidityElem,
@@ -122,10 +128,12 @@ const UIinit = {
             showDespElem,
             showIconElem
         } = this.allSeletor();
-        const {name, main:{temp, pressure, humidity}, weather } = data;
-        // console.log(weather);
+        const {name,
+             main:{temp, pressure, humidity},
+              weather } = data;
 
-        showCityElem.textContent = `${name}`,
+
+        showCityElem.textContent = name,
         
         showPressureElem.textContent = `Pressure : ${pressure}`,
         showHumidityElem.textContent = `Humidity ${humidity}`,
@@ -134,6 +142,7 @@ const UIinit = {
         showIconElem.setAttribute('src',this.getIcon(weather[0].icon)) ;
     },
     savatoStorage(city,country){
+
         dataSetToStorage.city = city,
         dataSetToStorage.country = country
     },
@@ -142,29 +151,30 @@ const UIinit = {
         form.addEventListener('submit', async e=>{
             e.preventDefault();
             const {countryValue, cityValue} = this.gettingValue();
+
+            weatherData.country = countryValue;
+            weatherData.city = cityValue;
+            await weatherData.collectWeatherData();
             this.valueValidation()
             this.resetValue();
-            weatherData.city = cityValue,
-            weatherData.country = countryValue;
-            this.savatoStorage(cityValue, countryValue);
-            console.log(cityValue, countryValue);
-            const data = await this.handleRemoteData();
+            let data = await this.handleRemoteData();
             this.showDataUI(data);
+            this.savatoStorage(cityValue, countryValue);
             dataSetToStorage.saveItem();
-            // console.log(data);
+            
         })
         window.addEventListener('DOMContentLoaded', async () => {
+            
             let {country, city} = dataSetToStorage.getItem();
-            console.log(country,city);
-            if(!country || !city){
-                country = 'Bangladesh'
+            if(!country && !city){
+                country = 'Bangladesh';
                 city = 'Pabna'
             }
-            // debugger
-                weatherData.city = city
-                weatherData.country = country
-                const data = await this.handleRemoteData();
-                this.showDataUI(data)
+            weatherData.city = city;
+            weatherData.country = country;
+            const data = await this.handleRemoteData();
+
+            this.showDataUI(data);
             
         })
     },
